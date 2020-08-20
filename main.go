@@ -12,7 +12,7 @@ import (
 func main() {
 	fileName := flag.String("csv", "problems.csv", "csv file in the format 'question,answer'")
 	flag.Parse()
-	timeLimit := flag.Int("limit", 5, "the time limit is set in seconds")
+	timeLimit := flag.Int("limit", 60, "the default time limit is 60 seconds")
 	file, err := os.Open(*fileName)
 	if err != nil {
 		exit(fmt.Sprintf("The file named %s could not be opened! :(", *fileName))
@@ -30,7 +30,7 @@ func main() {
 
 	right := 0
 	for i, prob := range problems {
-		fmt.Printf("Problem #%d: %s = ", i+1, prob.q)
+		printProblem(i, prob)
 
 		ansCh := make(chan string)
 		go func() {
@@ -49,9 +49,16 @@ func main() {
 			}
 		}
 	}
+	fmt.Printf("\nYou scored %d out of %d.\n", right, len(problems))
+	fmt.Println("")
+}
 
-	fmt.Printf("\nYou scored %d out of %d.", right, len(problems))
-
+func printProblem(i int, prob problem) {
+	fmt.Printf("\nQUESTION %d", i+1)
+	fmt.Printf("\n------------")
+	fmt.Printf("\n%s\n\n", prob.q)
+	fmt.Printf("A. %s\nB. %s\nC. %s\nD. %s\n\n", prob.opt1, prob.opt2, prob.opt3, prob.opt4)
+	fmt.Printf("Answer: ")
 }
 
 func parseLines(lines [][]string) []problem {
@@ -59,8 +66,12 @@ func parseLines(lines [][]string) []problem {
 
 	for i, line := range lines {
 		ret[i] = problem{
-			q: line[0],
-			a: strings.TrimSpace(line[1]),
+			q:    line[0],
+			opt1: line[1],
+			opt2: line[2],
+			opt3: line[3],
+			opt4: line[4],
+			a:    strings.TrimSpace(line[5]),
 		}
 	}
 
@@ -68,8 +79,12 @@ func parseLines(lines [][]string) []problem {
 }
 
 type problem struct {
-	q string
-	a string
+	q    string
+	opt1 string
+	opt2 string
+	opt3 string
+	opt4 string
+	a    string
 }
 
 func exit(message string) {
